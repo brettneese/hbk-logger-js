@@ -43,8 +43,8 @@ This module does a dirty dirty thing: it overrides `console.log`, `console.profi
 By default, the logger will output YAML to the console for easy readability. However, in a production environment, this logger will output well-structured JSON for consumption by Elasticsearch. This is controlled by setting any of the following environmental variables:
 
 - `AWS_EXECUTION_ENV` to any truthy value
-- `LOG_JSON` to any truthy value
-- `NODE_ENV` to `production`
+- `LOG_JSON` to any truthy value (not implemented yet)
+- `NODE_ENV` to `production` (not implemented yet)
 
 ### Module Path Support 
 
