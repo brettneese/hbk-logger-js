@@ -31,26 +31,25 @@ module.exports = function(options) {
     logOutput.modulePath = options.modulePath.split(process.cwd()).pop(); // is there a way we can split this without defining ahead of time?
   }
 
-  const ns = getNamespace(options.clsNamespace) || getNamespace("transaction");
-
   var winstonLogger = new winston.Logger({
     level: options.logLevel || config.LOG_LEVEL,
     rewriters: [
       function(level, msg, meta) {
+        const ns = getNamespace(options.clsNamespace) || getNamespace('transaction');
+        
         logOutput.message = msg;
         logOutput.meta = meta;
-        logOutput.userId = ns
+        logOutput.userId = (ns
           ? ns.get("USER_ID")
-          : undefined || process.env.USER_ID || options.userId;
-        logOutput.apiRequestId = ns
+          : undefined) || process.env.USER_ID || options.userId;
+        logOutput.apiRequestId = (ns
           ? ns.get("AWS_APIG_REQUEST_ID")
-          : undefined ||
+          : undefined) ||
             process.env["AWS_APIG_REQUEST_ID"] ||
             options.awsApigRequestId;
-        logOutput.lambdaRequestId = ns;
-        ns
+        logOutput.lambdaRequestId = (ns
           ? ns.get("AWS_APIG_REQUEST_ID")
-          : undefined ||
+          : undefined) ||
             process.env["AWS_LAMBDA_REQUEST_ID"] ||
             options.awsLambdaRequestId;
 
