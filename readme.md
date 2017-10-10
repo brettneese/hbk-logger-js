@@ -22,7 +22,7 @@ var log = require('@hbkapps/logger')({
     userId: 'bneese',
     awsApigRequestId: 'blah',
     awsLambdaRequestId: 'blah',
-    clsNamespace: 'blah' // by default this is this is 'transaction', see note below 
+    clsNamespace: 'blah' // by default this is 'transaction', see note below 
 })
 ```
 
