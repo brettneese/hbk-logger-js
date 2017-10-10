@@ -59,16 +59,20 @@ module.exports = function(options) {
     ]
   });
 
-  // @todo this isn't working
-  // //override console.log() so we get all the logs
+  // override console.*() so we get all the logs
   // https://github.com/winstonjs/winston/issues/790#issuecomment-173759879
-  // ["log", "profile", "startTimer"]
-  //   .concat(Object.keys(winstonLogger.levels))
-  //   .forEach(function(method) {
-  //     console[method] = function() {
-  //       return winstonLogger[method].apply(winstonLogger, arguments);
-  //     };
-  //   });
+  ["profile", "startTimer"]
+    .concat(Object.keys(winstonLogger.levels))
+    .forEach(function(method) {
+      console[method] = function() {
+        return winstonLogger[method].apply(winstonLogger, arguments);
+      };
+    });
+
+  // override console.log separately to call log.info  
+  console.log = function(){
+    return winstonLogger.info.apply(winstonLogger, arguments);
+  };
 
   // if we're not in Lambda, go ahead and just spit out YAML. If we are, spit out stringified JSON
   if (!config.LOG_JSON) {
