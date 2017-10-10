@@ -75,7 +75,7 @@ module.exports = function(options) {
   //   });
 
   // if we're not in Lambda, go ahead and just spit out YAML. If we are, spit out stringified JSON
-  if (!config.AWS_EXECUTION_ENV) {
+  if (!config.LOG_JSON) {
     winstonLogger.add(winston.transports.Console, toYAML.config());
   } else {
     winstonLogger.add(winston.transports.Console, {
