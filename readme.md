@@ -28,7 +28,7 @@ var log = require('@hbkapps/logger')({
 
 All options are optional. If `options` is a string, we assume it's a module path.
 
-The last three (awsApigRequestId, awsLambdaRequestId) are mostly included for the sake of consistency. As a practical matter, they should not be used that way and should be set either by their respective CLS namespace (see below).
+The last three (awsApigRequestId, awsLambdaRequestId) are mostly included for the sake of consistency. As a practical matter, they should not be used that way and should be set by their respective CLS namespace (see below).
 
 ## Features 
 
