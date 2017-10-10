@@ -1,7 +1,7 @@
 var config = require("convict")(__dirname + "/config.json").getProperties();
 var winston = require("winston");
 var toYAML = require("winston-console-formatter");
-var cls = require("continuation-local-storage");
+var getNamespace = require("continuation-local-storage").getNamespace;
 var _ = require("lodash");
 
 // inspired by https://stackoverflow.com/questions/42858585/add-module-name-in-winston-log-entries/42966914#42966914
@@ -30,12 +30,8 @@ module.exports = function(options) {
   if (options.modulePath) {
     logOutput.modulePath = options.modulePath.split(process.cwd()).pop(); // is there a way we can split this without defining ahead of time?
   }
-  if (process.namespaces[options.clsNamespace] || process.namespaces["transaction"]) {
-    clsNamespace = namespace.get(options.clsNamespace) || namespace.get("transaction")
-    namespace.USER_ID = clsNamespace.get('USER_ID')    
-    namespace.AWS_APIG_REQUEST_ID = clsNamespace.get('AWS_APIG_REQUEST_ID')    
-    namespace.AWS_LAMBDA_REQUEST_ID = clsNamespace.get('AWS_LAMBDA_REQUEST_ID')    
-  }
+
+  const ns = getNamespace(options.clsNamespace) || getNamespace("transaction");
 
   var winstonLogger = new winston.Logger({
     level: options.logLevel || config.LOG_LEVEL,
@@ -43,22 +39,23 @@ module.exports = function(options) {
       function(level, msg, meta) {
         logOutput.message = msg;
         logOutput.meta = meta;
-        logOutput.userId =
-          namespace.USER_ID ||
-          process.env.USER_ID ||
-          options.userId;
-        logOutput.apiRequestId =
-          namespace.AWS_APIG_REQUEST_ID ||
-          process.env["AWS_APIG_REQUEST_ID"] ||
-          options.awsApigRequestId;
-        logOutput.lambdaRequestId =
-          namespace.AWS_LAMBDA_REQUEST_ID ||
-          process.env["AWS_LAMBDA_REQUEST_ID"] ||
-          options.awsLambdaRequestId;
+        logOutput.userId = ns
+          ? ns.get("USER_ID")
+          : undefined || process.env.USER_ID || options.userId;
+        logOutput.apiRequestId = ns
+          ? ns.get("AWS_APIG_REQUEST_ID")
+          : undefined ||
+            process.env["AWS_APIG_REQUEST_ID"] ||
+            options.awsApigRequestId;
+        logOutput.lambdaRequestId = ns;
+        ns
+          ? ns.get("AWS_APIG_REQUEST_ID")
+          : undefined ||
+            process.env["AWS_LAMBDA_REQUEST_ID"] ||
+            options.awsLambdaRequestId;
 
-          
         // only return the logOutput values that have a value assigned
-        return _.pickBy(logOutput, _.identity)
+        return _.pickBy(logOutput, _.identity);
       }
     ]
   });
