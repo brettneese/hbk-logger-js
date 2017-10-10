@@ -21,7 +21,8 @@ var log = require('@hbkapps/logger')({
     logOutputPath: './path.txt',
     userId: 'bneese',
     awsApigRequestId: 'blah',
-    awsLambdaRequestId: 'blah'
+    awsLambdaRequestId: 'blah',
+    clsNamespace: 'blah' // by default this is this is 'transaction', see note below 
 })
 ```
 
@@ -53,9 +54,9 @@ Note that if the __filename starts with "chartroom-api/", it will be automatical
 
 <!-- Still need to figure out how to drop the fully qualified path in favor of just the app home --> 
 
-### API Gateway/Lambda Support
+### API Gateway/Lambda Support via CLS
 
-If there is a `transaction` CLS namespace and the `AWS_APIG_REQUEST_ID` and/or `AWS_LAMBDA_REQUEST_ID` variables are set, the logger will automatically add them to the output. If not, it will drop them. This makes it much easier to trace transactions from end to end. Note that if this is being used in an Express/server context, you _must_ set the CLS namespace because Express has no notion of per-request variables and setting environmental variables will cause race.
+If there is a `transaction` CLS namespace (or the clsNamespace option is provided) and the `AWS_APIG_REQUEST_ID` and/or `AWS_LAMBDA_REQUEST_ID` variables are set, the logger will automatically add them to the output. If not, it will drop them. This makes it much easier to trace transactions from end to end. Note that if this is being used in an Express/server context, you _must_ set the CLS namespace because Express has no notion of per-request variables and setting environmental variables will cause race.
 
 ### Automatic STAGE/NODE_ENV logging
 
