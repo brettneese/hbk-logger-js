@@ -1,0 +1,20 @@
+{
+  "name": "@hbkapps/logger",
+  "version": "8.0.11",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepush": "npm run test:depcheck; npm test",
+    "test": "echo \"Warning: no test specified\"",
+    "test:depcheck": "depcheck"
+  },
+  "author": "HBK Engineering, LLC",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "continuation-local-storage": "^3.2.0",
+    "convict": "^4.0.0",
+    "lodash": "^4.17.4",
+    "winston": "^2.3.1",
+    "winston-console-formatter": "^0.3.1"
+  }
+}

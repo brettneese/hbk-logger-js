@@ -1,0 +1,20 @@
+{
+    "LOG_JSON": {
+        "doc": "This configures whether or not to output logs in JSON. Default: false, which pretty-prints console logs in YAML-like style.",
+        "default": false,
+        "env": "AWS_EXECUTION_ENV" //|| @todo "NODE_ENV=production" || "LOG_JSON" // need to figure out how to make this be based on whether AWS_EXECUTION_ENV=true, or NODE_ENV=production, or LOG_JSON=true 
+    }, 
+    "LOG_LEVEL": {
+        "doc": "The log level for the default (console) logger.",
+        "format": [
+            "silly",
+            "debug",            
+            "verbose",
+            "info",
+            "warn",
+            "error"
+        ],
+        "default": "debug",
+        "env": "LOG_LEVEL"
+    }
+}
