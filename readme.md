@@ -48,11 +48,7 @@ By default, the logger will output YAML to the console for easy readability. How
 
 ### Module Path Support 
 
-By including the __filename when we include the logger, we get to see exactly what module produced that log. That makes it much easier to trace logs across different module.
-
-Note that if the __filename starts with "chartroom-api/", it will be automatically dropped to produce a more readable output. 
-
-<!-- Still need to figure out how to drop the fully qualified path in favor of just the app home --> 
+By including the __filename when we include the logger, we get to see exactly what module produced that log. That makes it much easier to trace logs across different module. We automatically drop the current working directory of the running process from this string to make it easier to digest (thus all paths are relative to the server's CWD).
 
 ### API Gateway/Lambda Support via CLS
 
