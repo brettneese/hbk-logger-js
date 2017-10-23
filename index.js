@@ -2,7 +2,9 @@ var config = require("convict")(__dirname + "/config.json").getProperties();
 var winston = require("winston");
 var toYAML = require("winston-console-formatter");
 var getNamespace = require("continuation-local-storage").getNamespace;
-var _ = require("lodash");
+var _pickBy = require("lodash.pickby");
+var _identity = require("lodash.identity");
+var _isString = require("lodash.isstring");
 
 // inspired by https://stackoverflow.com/questions/42858585/add-module-name-in-winston-log-entries/42966914#42966914
 module.exports = function(options) {
@@ -21,40 +23,44 @@ module.exports = function(options) {
     lambdaRequestId: null
   };
 
-  // if the option is a string, assume it's a module path.
+  // if the options is a string, assume it's a module path.
   // if we have zero options, don't log the module path
-  if (_.isString(options)) {
-    logOutput.modulePath = options.split(process.cwd()).pop(); // is there a way we can split this without defining ahead of time?
+  if (_isString(options)) {
+    logOutput.modulePath = options.split(process.cwd()).pop();
   }
 
   if (options.modulePath) {
-    logOutput.modulePath = options.modulePath.split(process.cwd()).pop(); // is there a way we can split this without defining ahead of time?
+    logOutput.modulePath = options.modulePath.split(process.cwd()).pop();
   }
 
   var winstonLogger = new winston.Logger({
     level: options.logLevel || config.LOG_LEVEL,
     rewriters: [
       function(level, msg, meta) {
-        const ns = getNamespace(options.clsNamespace) || getNamespace('transaction');
-        
+        const ns =
+          getNamespace(options.clsNamespace) || getNamespace("transaction");
+
         logOutput.message = msg;
         logOutput.meta = meta;
-        logOutput.userId = (ns
-          ? ns.get("USER_ID")
-          : undefined) || process.env.USER_ID || options.userId;
-        logOutput.apiRequestId = (ns
-          ? ns.get("AWS_APIG_REQUEST_ID")
-          : undefined) ||
-            process.env["AWS_APIG_REQUEST_ID"] ||
-            options.awsApigRequestId;
-        logOutput.lambdaRequestId = (ns
-          ? ns.get("AWS_APIG_REQUEST_ID")
-          : undefined) ||
-            process.env["AWS_LAMBDA_REQUEST_ID"] ||
-            options.awsLambdaRequestId;
+        logOutput.userId =
+          (ns ? ns.get("USER_ID") : undefined) ||
+          process.env.USER_ID ||
+          options.userId;
+        logOutput.apiRequestId =
+          (ns ? ns.get("AWS_APIG_REQUEST_ID") : undefined) ||
+          process.env["AWS_APIG_REQUEST_ID"] ||
+          options.awsApigRequestId;
+        logOutput.lambdaRequestId =
+          (ns ? ns.get("AWS_APIG_REQUEST_ID") : undefined) ||
+          process.env["AWS_LAMBDA_REQUEST_ID"] ||
+          options.awsLambdaRequestId;
 
+        if (process.env.AWS_EXECUTION_ENV){
+          logOutput.awsLambdaWarm = !!process.env.LAMBDA_WARM;
+          process.env.AWS_LAMBDA_WARM = true; 
+        }
         // only return the logOutput values that have a value assigned
-        return _.pickBy(logOutput, _.identity);
+        return _pickBy(logOutput, _identity);
       }
     ]
   });
@@ -69,8 +75,8 @@ module.exports = function(options) {
       };
     });
 
-  // override console.log separately to call log.info  
-  console.log = function(){
+  // override console.log separately to call log.info
+  console.log = function() {
     return winstonLogger.info.apply(winstonLogger, arguments);
   };
 
