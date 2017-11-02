@@ -1,9 +1,22 @@
 var config = require("convict")(__dirname + "/config.json").getProperties();
 var winston = require("winston");
 var toYAML = require("winston-console-formatter");
-var getNamespace = require("continuation-local-storage").getNamespace;
+var getNamespace = function(){
+  return {
+    get: function(key){
+      return process.env[key];
+    }
+  };
+};
+
+try {
+  getNamespace = require("continuation-local-storage").getNamespace;
+} catch(err){
+  console.warn('An error occurred loading "continuation-local-storage". It may have to do with https://github.com/HBKEngineering/hbk-logger-js/issues/1. Using a barebones implementation of `getNamespace`.')
+  console.warn('The error was', err);
+}
+
 var _pickBy = require("lodash.pickby");
-var _identity = require("lodash.identity");
 var _isString = require("lodash.isstring");
 
 // inspired by https://stackoverflow.com/questions/42858585/add-module-name-in-winston-log-entries/42966914#42966914
@@ -59,8 +72,10 @@ module.exports = function(options) {
           logOutput.awsLambdaWarm = !!process.env.LAMBDA_WARM;
           process.env.AWS_LAMBDA_WARM = true; 
         }
-        // only return the logOutput values that have a value assigned
-        return _pickBy(logOutput, _identity);
+        // only return the logOutput values that explictly have a value assigned
+        return _pickBy(logOutput, function(value, key){
+          return value || (value === false);
+        });
       }
     ]
   });
